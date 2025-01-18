@@ -16,6 +16,7 @@ function RegistrationPage() {
         dateOfBirth: '',
         email: '',
         password: '',
+        phoneNumber:'',
     });
     const [passwordError, setPasswordError] = useState('');
 
@@ -52,7 +53,7 @@ function RegistrationPage() {
                 setError(userData.message || 'Registration failed');
             }
         } catch (error) {
-            setError(error.response?.data?.message || 'An error occurred during registration');
+            setError(error.response?.data?.message || 'Please check your email to confirm password!');
             console.log(error);
         } finally {
             setLoading(false);
@@ -73,6 +74,13 @@ function RegistrationPage() {
                         name="name"
                         value={formData.name}
                         onChange={(e) => handleInputChange('name', e.target.value)}
+                    />
+                </Form.Item>
+                <Form.Item label="Phone Number" required>
+                    <Input 
+                        name="phoneNumber"
+                        value={formData.phoneNumber}
+                        onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
                     />
                 </Form.Item>
                 <Form.Item label="Date of Birth" required>

@@ -9,22 +9,14 @@ function ChangePasswordPopup({ userId, visible, onClose }) {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const [newPassword, setNewPassword] = useState('');
-    useEffect(() => {
-        if (visible && userId) {
-            const fetchUserData = async () => {
-                try {
-                    const token = localStorage.getItem('token');
-                    const response = await UserService.getUserById(userId, token);
-                    form.setFieldsValue(response.user);
-                } catch (error) {
-                    console.error('Error fetching user data:', error);
-                    message.error('Failed to fetch user data');
-                }
-            };
 
-            fetchUserData();
+    // Reset form when modal opens
+    useEffect(() => {
+        if (visible) {
+            form.resetFields();
+            setNewPassword('');
         }
-    }, [visible, userId, form]);
+    }, [visible, form]);
 
     const handleSubmit = async (values) => {
         setLoading(true);
@@ -39,8 +31,6 @@ function ChangePasswordPopup({ userId, visible, onClose }) {
 
             if (response.statusCode === 200) {
                 message.success('Check email to confirm change password');
-                // onClose();
-                // form.resetFields();
                 UserService.logout();
                 navigate('/login');
             } else {
@@ -49,60 +39,97 @@ function ChangePasswordPopup({ userId, visible, onClose }) {
         } catch (error) {
             console.error('Error updating password:', error);
             message.error('Failed to change password');
-        } finally{
+        } finally {
             setLoading(false);
         }
+    };
+
+    // Handle new password change
+    const handleNewPasswordChange = (e) => {
+        const value = e.target.value;
+        setNewPassword(value);
+        // Trigger validation for confirm password
+        form.validateFields(['confirmPassword']);
     };
 
     return (
         <Modal
             title="Change Password"
             open={visible}
-            onCancel={onClose}
+            onCancel={() => {
+                form.resetFields();
+                onClose();
+            }}
             footer={null}
         >
             <Form 
                 form={form} 
                 onFinish={handleSubmit}
+                layout="vertical"
             >
                 <Form.Item
                     label="Old Password"
                     name="password"
-                    rules={[{ required: true, message: 'Please input your old password!' }]}
+                    rules={[
+                        { 
+                            required: true, 
+                            message: 'Please input your old password!' 
+                        }
+                    ]}
                 >
                     <Input.Password />
                 </Form.Item>
+
                 <Form.Item
                     label="New Password"
                     name="newPassword"
-                    rules={[{ required: true, message: 'Please input your new password!' }]}
+                    rules={[
+                        { 
+                            required: true, 
+                            message: 'Please input your new password!' 
+                        }
+                    ]}
+                    validateTrigger={['onChange', 'onBlur']}
                 >
                     <Input.Password
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
+                        onChange={handleNewPasswordChange}
                     />
-                    <PasswordStrengthBar password={newPassword} />
                 </Form.Item>
+                
+                <PasswordStrengthBar password={newPassword} />
+
                 <Form.Item
                     label="Confirm New Password"
                     name="confirmPassword"
                     dependencies={['newPassword']}
                     rules={[
-                        { required: true, message: 'Please confirm your new password!' },
+                        { 
+                            required: true, 
+                            message: 'Please confirm your new password!' 
+                        },
                         ({ getFieldValue }) => ({
                             validator(_, value) {
                                 if (!value || getFieldValue('newPassword') === value) {
                                     return Promise.resolve();
                                 }
-                                return Promise.reject(new Error('The two passwords do not match!'));
+                                return Promise.reject(
+                                    new Error('The two passwords do not match!')
+                                );
                             },
                         }),
                     ]}
+                    validateTrigger={['onChange', 'onBlur']}
                 >
                     <Input.Password />
                 </Form.Item>
+
                 <Form.Item>
-                    <Button type="primary" htmlType="submit" loading={loading}>
+                    <Button 
+                        type="primary" 
+                        htmlType="submit" 
+                        loading={loading}
+                       
+                    >
                         Change Password
                     </Button>
                 </Form.Item>

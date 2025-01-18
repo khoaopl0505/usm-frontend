@@ -74,10 +74,12 @@ function ProjectManagementPage() {
     setModalType('edit');
     setEditingProject(project);
     form.setFieldsValue({
+      id: project.id,
       projectName: project.projectName,
-      implementationTime: project.implementationTime,
-      deadline: project.deadline,
+      implementationTime: moment(project.implementationTime).format('YYYY-MM-DDTHH:mm'),
+      deadline: moment(project.deadline).format('YYYY-MM-DDTHH:mm'),
       description: project.description,
+      projectLeader: project.projectLeader, // Set project leader for editing
     });
     setIsModalVisible(true);
   };
@@ -87,11 +89,16 @@ function ProjectManagementPage() {
     try {
       const values = await form.validateFields();
       const token = localStorage.getItem('token');
+      const payload = {
+        ...values,
+        implementationTime: moment(values.implementationTime).toISOString(),
+        deadline: moment(values.deadline).toISOString(),
+      };
       if (modalType === 'add') {
-        await ProjectService.createProject(values, token);
+        await ProjectService.createProject(payload, token);
         message.success('Project added successfully!');
       } else if (modalType === 'edit') {
-        await ProjectService.updateProject(editingProject.id, values, token);
+        await ProjectService.updateProject(editingProject.id, payload, token);
         message.success('Project updated successfully!');
       }
       fetchProjects();
@@ -109,15 +116,21 @@ function ProjectManagementPage() {
 
   const columns = [
     {
-      title: 'No.',
-      dataIndex: 'index',
-      key: 'index',
+      title: 'Id',
+      dataIndex: 'id',
+      key: 'id',
       align: 'center',
     },
     {
       title: 'Project Name',
       dataIndex: 'projectName',
       key: 'projectName',
+      align: 'center',
+    },
+    {
+      title: 'Project Leader',
+      dataIndex: 'projectLeader',
+      key: 'projectLeader',
       align: 'center',
     },
     {
@@ -190,10 +203,12 @@ function ProjectManagementPage() {
             dataSource={currentProjects.map((project, index) => ({
               key: project.id,
               index: indexOfFirstProject + index + 1,
+              id: project.id,
               projectName: project.projectName,
               implementationTime: project.implementationTime,
               deadline: project.deadline,
               description: project.description,
+              projectLeader: project.projectLeader, // Include project leader in table data
             }))}
             pagination={false}
           />
@@ -213,6 +228,13 @@ function ProjectManagementPage() {
             label="Project Name"
             name="projectName"
             rules={[{ required: true, message: 'Please enter project name' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Project Leader"
+            name="projectLeader"
+            rules={[{ required: true, message: 'Please enter project leader' }]}
           >
             <Input />
           </Form.Item>

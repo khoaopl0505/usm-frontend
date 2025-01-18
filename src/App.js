@@ -15,6 +15,10 @@ import ProjectManagementPage from './component/userpage/ProjectPage';
 import ConfirmEmail from './component/userpage/ConfirmEmail';
 import TaskManagementPage from './component/userpage/TaskPage';
 import MyTaskPage from './component/userpage/MyTaskPage';
+import LeaderManagementPage from './component/userpage/LeaderPage';
+import LeaderProjectManagementPage from './component/userpage/LeaderProject';
+
+
 
 
 function App() {
@@ -33,10 +37,12 @@ function App() {
             <Route path="/unlock" element={<UnlockAccount />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/confirm-email" element={<ConfirmEmail />} />
+            
             {/* Check if user is authenticated and admin before rendering admin-only routes */}
             {UserService.adminOnly() && (
               <>
-                
+                <Route path="/admin/leader" element={<LeaderManagementPage />} />
+                <Route path="/admin/leader-project" element={<LeaderProjectManagementPage />} />
                 <Route path="/admin/user-management" element={<UserManagementPage />} />
                 <Route path="/update-user/:userId" element={<UpdateUser />} />
                 <Route path="/admin/group" element={<GroupManagementPage />} />
@@ -44,6 +50,7 @@ function App() {
                 <Route path="/admin/task" element={<TaskManagementPage />} />
               </>
             )}
+            
             <Route path="*" element={<Navigate to="/login" />} />
           </Routes>
         </div>
@@ -52,5 +59,6 @@ function App() {
     </BrowserRouter>
   );
 }
+
 
 export default App;

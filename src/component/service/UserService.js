@@ -34,7 +34,7 @@ class UserService{
 
     static async getUserByEmail(email, token){
         try{
-            const response = await axios.get(`${UserService.BASE_URL}/adminuser/get-user-by-email/${email}`, 
+            const response = await axios.get(`${UserService.BASE_URL}/admin/find_by_email/${email}`, 
             {
                 headers: {Authorization: `Bearer ${token}`}
             })
@@ -58,7 +58,7 @@ class UserService{
 
     static async forgotPassword(email, userData){
         try{
-            const response = await axios.put(`${UserService.BASE_URL}/group/reset-password/${email}`, userData)
+            const response = await axios.put(`${UserService.BASE_URL}/auth/reset-password/${email}`, userData)
             return response.data;
         }catch(err){
             throw err;
@@ -131,7 +131,7 @@ class UserService{
 
     static async updateUser(userId, userData, token){
         try{
-            const response = await axios.put(`${UserService.BASE_URL}/admin/update-user/${userId}`, userData,
+            const response = await axios.put(`${UserService.BASE_URL}/group/update-user/${userId}`, userData,
             {
                 headers: {Authorization: `Bearer ${token}`}
             })
@@ -143,7 +143,29 @@ class UserService{
     
     static async getUserByIdGroup(groupId, token){
         try{
-            const response = await axios.get(`${UserService.BASE_URL}/group/user-by-id-group/${groupId}`, 
+            const response = await axios.get(`${UserService.BASE_URL}/admin/count-by-group/${groupId}`, 
+            {
+                headers: {Authorization: `Bearer ${token}`}
+            })
+            return response.data;
+        }catch(err){
+            throw err;
+        }
+    }
+    static async getListUserByIdGroup(groupId, token){
+        try{
+            const response = await axios.get(`${UserService.BASE_URL}/admin/user-by-id-group/${groupId}`, 
+            {
+                headers: {Authorization: `Bearer ${token}`}
+            })
+            return response.data;
+        }catch(err){
+            throw err;
+        }
+    }
+    static async removeUser(userId, token){
+        try{
+            const response = await axios.get(`${UserService.BASE_URL}/group/update-id-group/${userId}`, 
             {
                 headers: {Authorization: `Bearer ${token}`}
             })
@@ -168,6 +190,14 @@ class UserService{
         return role === 'ADMIN'
     }
 
+    static isLeaderGroup(){
+        const role = localStorage.getItem('role')
+        return role === 'LEADER_GROUP'
+    }
+    static isLeaderProject(){
+        const role = localStorage.getItem('role')
+        return role === 'LEADER_PROJECT'
+    }
     static isUser(){
         const role = localStorage.getItem('role')
         return role === 'USER'
@@ -175,6 +205,12 @@ class UserService{
 
     static adminOnly(){
         return this.isAuthenticated() && this.isAdmin();
+    }
+    static leaderGroupOnly(){
+        return this.isAuthenticated() && this.isLeaderGroup();
+    }
+    static leaderProjectOnly(){
+        return this.isAuthenticated() && this.isLeaderProject();
     }
 
 }

@@ -1,19 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Modal, Form, Input, Button, message, DatePicker } from 'antd';
-import moment from 'moment'; // Import thêm moment
+import moment from 'moment';
 import UserService from '../service/UserService';
 
 function UpdateUserPopup({ userId, visible, onClose, refreshProfile }) {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
+    const [originalData, setOriginalData] = useState({}); // Lưu trữ dữ liệu gốc
 
-    // Fetch user data and set fields
+    // Fetch dữ liệu user ban đầu
     const fetchUserData = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
             const response = await UserService.getUserById(userId, token);
 
-            // Chuyển đổi dateOfBirth sang moment
+            // Chuyển đổi dateOfBirth sang Moment cho Antd DatePicker
             const userData = {
                 ...response.user,
                 dateOfBirth: response.user.dateOfBirth
@@ -21,6 +22,7 @@ function UpdateUserPopup({ userId, visible, onClose, refreshProfile }) {
                     : null,
             };
 
+            setOriginalData(userData); // Lưu dữ liệu gốc
             form.setFieldsValue(userData);
         } catch (error) {
             console.error('Error fetching user data:', error);
@@ -34,21 +36,28 @@ function UpdateUserPopup({ userId, visible, onClose, refreshProfile }) {
         }
     }, [visible, userId, fetchUserData]);
 
-    // Handle form submission
+  
     const handleSubmit = async (values) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-
+    
             // Format dateOfBirth trước khi gửi
             const formattedValues = {
                 ...values,
                 dateOfBirth: values.dateOfBirth
                     ? values.dateOfBirth.format('YYYY-MM-DD')
-                    : null,
+                    : null, // Nếu không được chọn, để null
             };
-
-            await UserService.updateUser(userId, formattedValues, token);
+    
+            // Kết hợp dữ liệu mới (có thay đổi) với dữ liệu gốc từ getUserById
+            const fullRequest = {
+                ...originalData, // Dữ liệu gốc từ getUserById
+                ...formattedValues, // Dữ liệu mới cần cập nhật
+            };
+    
+            // Gửi toàn bộ dữ liệu đến API
+            await UserService.updateUser(userId, fullRequest, token);
             message.success('Profile updated successfully');
             refreshProfile();
             onClose();
@@ -59,6 +68,7 @@ function UpdateUserPopup({ userId, visible, onClose, refreshProfile }) {
             setLoading(false);
         }
     };
+    
 
     return (
         <Modal
@@ -79,7 +89,7 @@ function UpdateUserPopup({ userId, visible, onClose, refreshProfile }) {
                 >
                     <Input />
                 </Form.Item>
-
+                
                 <Form.Item
                     name="email"
                     label="Email"
@@ -97,6 +107,20 @@ function UpdateUserPopup({ userId, visible, onClose, refreshProfile }) {
                     rules={[{ required: true, message: 'Please select the date of birth' }]}
                 >
                     <DatePicker format="YYYY-MM-DD" />
+                </Form.Item>
+
+                <Form.Item
+                    name="phoneNumber"
+                    label="Phone Number"
+                >
+                    <Input />
+                </Form.Item>
+
+                <Form.Item
+                    name="statusUser"
+                    label="Status User"
+                >
+                    <Input />
                 </Form.Item>
 
                 <Form.Item>

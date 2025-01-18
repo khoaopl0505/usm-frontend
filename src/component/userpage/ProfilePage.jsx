@@ -50,7 +50,9 @@ function ProfilePage() {
                     <Descriptions.Item label="Name">{profileInfo.name}</Descriptions.Item>
                     <Descriptions.Item label="Date of Birth">{profileInfo.dateOfBirth}</Descriptions.Item>
                     <Descriptions.Item label="Email">{profileInfo.email}</Descriptions.Item>      
-                    <Descriptions.Item label="Group">{profileInfo.group?.groupName }</Descriptions.Item>  
+                    <Descriptions.Item label="Group">{profileInfo.group?.groupName }</Descriptions.Item>
+                    <Descriptions.Item label="PhoneNumber">{profileInfo.phoneNumber }</Descriptions.Item>
+                    <Descriptions.Item label="Status">{profileInfo.statusUser }</Descriptions.Item>
                 </Descriptions>
 
                 <div>

@@ -48,7 +48,7 @@ const ForgotPassword = () => {
       </Form.Item>
 
       <Form.Item
-        name="password"
+        name="newPassword"
         label="Mật khẩu mới"
         rules={[
           { required: true, message: 'Vui lòng nhập mật khẩu mới!' },

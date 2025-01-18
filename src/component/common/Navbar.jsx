@@ -58,7 +58,7 @@ function Navbar() {
                 )}
                 {isAdmin && (
                     <Menu.Item key="group management">
-                        <Link to="/admin/group">Group Management</Link>
+                        <Link to="/admin/leader">Group Management</Link>
                     </Menu.Item>
                 )}
                 {isAdmin && (
@@ -68,14 +68,16 @@ function Navbar() {
                 )}
                 {isAdmin && (
                     <Menu.Item key="task management">
-                        <Link to="/admin/task">Task Management</Link>
+                        <Link to="/admin/leader-project">Task Management</Link>
                     </Menu.Item>
                 )}
+                
                 {isAuthenticated && (
                     <Menu.Item key="logout" onClick={handleLogout}>
                         Logout
                     </Menu.Item>
                 )}
+                
             </Menu>
         </Header>
     );

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Input, Pagination, Typography, message, Button, Modal, Form } from 'antd';
 import GroupService from '../service/GroupService';
+import UserService from '../service/UserService';
 
 const { Title } = Typography;
 
@@ -24,14 +25,29 @@ function GroupManagementPage() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
+  
+      // Lấy danh sách nhóm
       const response = await GroupService.getListGroup(token);
-      setGroups(response.groupList || []);
+      const groupList = response.groupList || [];
+      setGroups(groupList);
+  
+      // Gửi request cho từng nhóm để lấy thông tin (không lưu kết quả)
+      groupList.forEach(async (group) => {
+        try {
+          await UserService.getUserByIdGroup(group.id, token);
+          console.log(`Request sent for group ID: ${group.id}`);
+        } catch (error) {
+          console.error(`Error sending request for group ID: ${group.id}`, error);
+        }
+      });
     } catch (error) {
       message.error('Error fetching groups. Please try again later.');
     } finally {
       setLoading(false);
     }
   };
+  
+  
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -53,7 +69,7 @@ function GroupManagementPage() {
     setIsModalVisible(true);
   };
 
-  const showEditModal = async (group) => {
+  const showEditModal = (group) => {
     setModalType('edit');
     setEditingGroup(group);
     form.setFieldsValue({
@@ -125,7 +141,21 @@ function GroupManagementPage() {
       dataIndex: 'membersQuantity',
       key: 'membersQuantity',
       align: 'center',
-      render: (membersQuantity) => membersQuantity || 'N/A',
+      
+    },
+    {
+      title: 'Group Leader',
+      dataIndex: 'groupLeader',
+      key: 'groupLeader',
+      align: 'center',
+      
+    },
+    {
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description',
+      align: 'center',
+      
     },
     {
       title: 'Actions',
@@ -177,6 +207,8 @@ function GroupManagementPage() {
               id: group.id,
               groupName: group.groupName,
               membersQuantity: group.membersQuantity,
+              groupLeader: group.groupLeader,
+              description: group.description,
             }))}
             pagination={false}
           />
@@ -198,7 +230,25 @@ function GroupManagementPage() {
             rules={[{ required: true, message: 'Please enter group name' }]}
           >
             <Input />
-          </Form.Item>
+            </Form.Item>
+    <Form.Item
+      label="Group Leader (Email)"
+      name="groupLeader"
+      rules={[
+        { required: true, message: 'Please enter the group leader email' },
+        { type: 'email', message: 'Please enter a valid email address' },
+      ]}
+    >
+      <Input placeholder="Enter group leader email" />
+    </Form.Item>
+    <Form.Item
+      label="Description"
+      name="description"
+      rules={[{ required: true, message: 'Please enter a description' }]}
+    >
+      <Input.TextArea rows={4} placeholder="Enter group description" />
+    </Form.Item>
+          
         </Form>
       </Modal>
     </div>

@@ -34,9 +34,20 @@ class ProjectService{
             throw err;
         }
     }
+    static async getProjectByEmail(email, token){
+        try{
+            const response = await axios.get(`${ProjectService.BASE_URL}/admin/get-project-by-email/${email}`, 
+            {
+                headers: {Authorization: `Bearer ${token}`}
+            })
+            return response.data;
+        }catch(err){
+            throw err;
+        }
+    }
     static async deleteProject(projectId, token){
         try{
-            const response = await axios.delete(`${ProjectService.BASE_URL}/admin/delete-project`, projectId, 
+            const response = await axios.delete(`${ProjectService.BASE_URL}/admin/delete-project/${projectId}`,
             {
                 headers: {Authorization: `Bearer ${token}`}
             })
@@ -47,7 +58,7 @@ class ProjectService{
     }
     static async updateProject(projectId, projectData, token){
         try{
-            const response = await axios.put(`${ProjectService.BASE_URL}/admin/update-project`, projectId, projectData, 
+            const response = await axios.put(`${ProjectService.BASE_URL}/admin/update-project/${projectId}`, projectData, 
             {
                 headers: {Authorization: `Bearer ${token}`}
             })
